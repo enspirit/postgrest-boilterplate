@@ -1,0 +1,27 @@
+---
+url: |-
+  /
+
+method: |-
+  GET
+
+description: |-
+  Get info about the server
+
+input_schema: |-
+  Any
+
+output_schema: |-
+  Any
+
+error_schema: |-
+  Any
+
+examples:
+
+  - description: |-
+      it works
+    params: {}
+    expected:
+      content_type: application/openapi+json; charset=utf-8
+      status: 200

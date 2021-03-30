@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+
+  # Backend api powered by PostgREST
+  api:
+    image: postgrest/postgrest
+    env_file:
+      ./api/env/devel.env
+    depends_on:
+      - postgres
+
+  # PostgreSQL database. This agent may be replaced by a real database service,
+  # such as AWS RDS, provided the configuration of the other services is adapted.
+  postgres:
+    image: postgres:9.5
+    env_file:
+      ./postgres/env/devel.env
+    volumes:
+      - ./volumes/pgdata:/var/lib/postgresql/data
+
+  # `dbagent` holds the database schema, migrations and test seeds.
+  dbagent:
+    image: enspirit/dbagent:2.2.1
+    ports:
+      - 8081:80
+    env_file:
+      - ./dbagent/env/devel.env
+      - ./api/env/devel.env
+    volumes:
+      - ./dbagent/migrations:/home/app/migrations
+      - ./dbagent/data:/home/app/data
+      - ./dbagent/backups:/home/app/backups
+      - ./dbagent/schema:/home/app/schema
+    depends_on:
+      - postgres
+
+  # Black-box functional tests using webspicy
+  tests:
+    image: enspirit/webspicy:0.20-tester
+    command: ["tail", "-f", "/dev/null"]
+    env_file:
+      ./tests/env/devel.env
+    volumes:
+      - ./tests/:/formalspec/
